@@ -13,7 +13,7 @@ from deepspeech import Model as DModel
 _logger = logger.setup_applevel_logger(__name__)
 _models = {
     "ds": {
-        "model": "https://github.com/mozilla/DeepSpeech/releases/download/v0.9.3/deepspeech-0.9.3-models.pbmm", 
+        "model": "https://github.com/mozilla/DeepSpeech/releases/download/v0.9.3/deepspeech-0.9.3-models.pbmm",
         "scorer": "https://github.com/mozilla/DeepSpeech/releases/download/v0.9.3/deepspeech-0.9.3-models.scorer"
         },
     "stt": {
@@ -80,7 +80,7 @@ def get_model(args, arg_name):
         args : run-time arguments
         arg_name : either model or scorer file
     """
-    
+
     if arg_name == "model":
         if args.engine == "ds":
             arg_extension = ".pbmm"
@@ -90,7 +90,7 @@ def get_model(args, arg_name):
         arg_extension = ".scorer"
 
     arg = args.__getattribute__(arg_name)
-    
+
     if arg is not None:
         model = os.path.abspath(arg)
         if not os.path.isfile(model):
@@ -99,11 +99,11 @@ def get_model(args, arg_name):
     else:
         models = [file for file in os.listdir() if file.endswith(arg_extension)]
         num_models = len(models)
-    
+        _logger.warn(f"models= {models} files={os.listdir()}")
         if num_models == 0:
             model = download_model(args.engine, arg_name)
 
-        elif num_models != 1: 
+        elif num_models != 1:
             _logger.warn(f"Detected {num_models} {arg_name} files in local dir")
             if arg_name == 'model':
                 _logger.error("Must specify pbmm model")
@@ -112,9 +112,9 @@ def get_model(args, arg_name):
                 _logger.warn("Please specify scorer using --scorer")
                 model = ''
         else:
-            model = os.path.abspath(models[0])                    
-    
-    _logger.info(f"{arg_name.capitalize()}: {model}")
+            model = os.path.abspath(models[0])
+
+    _logger.info(f"what?{arg_name.capitalize()}: {model}")
     return(model)
 
 

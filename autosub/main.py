@@ -5,16 +5,16 @@ import os
 import re
 import sys
 import wave
-from . import logger
+from autosub import logger
 import argparse
 
 import numpy as np
 from tqdm import tqdm
 
-from .utils import *
-from .writeToFile import write_to_file
-from .audioProcessing import extract_audio
-from .segmentAudio import remove_silent_segments
+from autosub.utils import *
+from autosub.writeToFile import write_to_file
+from autosub.audioProcessing import extract_audio
+from autosub.segmentAudio import remove_silent_segments
 
 _logger = logger.setup_applevel_logger(__name__)
 
@@ -23,9 +23,9 @@ line_count = 1
 
 
 def ds_process_audio(ds, audio_file, output_file_handle_dict, split_duration):
-    """sttWithMetadata() will run DeepSpeech inference on each audio file 
-    generated after remove_silent_segments. These files contain start and end 
-    timings in their title which we use in srt file. 
+    """sttWithMetadata() will run DeepSpeech inference on each audio file
+    generated after remove_silent_segments. These files contain start and end
+    timings in their title which we use in srt file.
 
     Args:
         ds : DeepSpeech Model
@@ -97,17 +97,18 @@ def main():
     parser.add_argument("--file", required=False, help="Input video file")
     parser.add_argument("--model", required=False, help="Input *.pbmm model file")
     parser.add_argument("--scorer", required=False, help="Input *.scorer file")
-    
+
     args = parser.parse_args()
-    
+
     #print(sys.argv[0:])
     _logger.info(f"ARGS: {args}")
 
     ds_model = get_model(args, "model")
+    _logger.info("ds_model = get_model over")
     ds_scorer = get_model(args, "scorer")
 
     if args.dry_run:
-        create_model(args.engine, ds_model, ds_scorer) 
+        create_model(args.engine, ds_model, ds_scorer)
         if args.file is not None:
             if not os.path.isfile(args.file):
                 _logger.warn(f"Invalid file: {args.file}")
@@ -129,7 +130,7 @@ def main():
     audio_directory = os.path.join(base_directory, "audio")
     video_prefix = os.path.splitext(os.path.basename(input_file))[0]
     audio_file_name = os.path.join(audio_directory, video_prefix + ".wav")
-    
+
     os.makedirs(output_directory, exist_ok=True)
     os.makedirs(audio_directory, exist_ok=True)
     output_file_handle_dict = {}
@@ -144,6 +145,8 @@ def main():
             output_file_handle_dict[format].write("Kind: captions\n\n")
 
     clean_folder(audio_directory)
+    _logger.info(f"will extract_audio: {input_file}")
+
     extract_audio(input_file, audio_file_name)
 
     _logger.info("Splitting on silent parts in audio file")
@@ -154,7 +157,7 @@ def main():
     audiofiles.remove(os.path.basename(audio_file_name))
 
     _logger.info("Running inference...")
-    ds = create_model(args.engine, ds_model, ds_scorer) 
+    ds = create_model(args.engine, ds_model, ds_scorer)
 
     for filename in tqdm(audiofiles):
         audio_segment_path = os.path.join(audio_directory, filename)

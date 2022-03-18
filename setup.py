@@ -1,15 +1,16 @@
 import os
-from setuptools import setup
+from setuptools import setup, find_packages
 
 DIR = os.path.dirname(os.path.abspath(__file__))
 INSTALL_PACKAGES = open(os.path.join(DIR, 'requirements.txt')).read().splitlines()
 
-with open("README.md", "r") as fh:
+with open("README.md", "rb") as fh:
     README = fh.read()
 
 setup(
     name="AutoSub",
     packages=["autosub"],
+    #packages = find_packages(),
     version="0.0.1",
     author="Abhiroop Talasila",
     author_email="abhiroop.talasila@gmail.com",
